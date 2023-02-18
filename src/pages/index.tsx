@@ -20,20 +20,45 @@ export default function Home() {
   const [curIndex, setCurIndex] = useState(0)
   const [result, setResult] = useState(false)
   const [isSpoiled, setIsSpoiled] = useState(false);
+  const [isFlip, setIsFlip] = useState(false);
   const spoilRef = useRef<HTMLSpanElement | null | undefined>(null);
   useEffect(() => {
     const fetch = async () => {
       const data = await axios.get("http://localhost:3000/api/card")
-      console.log(data)
       setCard(prev => data.data)
       setCurCard(data?.data[curIndex])
     }
     fetch()
   }, [])
 
-  useEffect(() => {
 
-  })
+  useEffect(() => {
+    const temp: Array<card> = [];
+    if (isFlip) {
+      for (let i = 0; i < card.length; i++) {
+        temp.push({ definition: card[i].value, value: card[i].definition })
+      }
+      setCard(temp)
+    } else {
+      return
+    }
+  }, [isFlip])
+
+  const shuffle = () => {
+    let array: card[] = card;
+    for (var i = array.length - 1; i > 0; i--) {
+      // Generate random number 
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  }
+
+  const shuffleEvent = () => {
+    setCard(shuffle())
+  }
   const check = () => {
     setIsSpoiled(false)
 
@@ -49,8 +74,8 @@ export default function Home() {
   }
 
   const handleKeypress = (e: KeyboardEvent) => {
+    console.log(e.key)
     if (e.key == 'Enter') {
-
       setIsSpoiled(false)
       if (curCard?.value.trim() == inputValue.trim()) {
         setResult(true)
@@ -63,12 +88,38 @@ export default function Home() {
       if (result) {
         setCurCard(card[curIndex])
       }
+    }
+    if (e.key == 'Control') {
+      spoil()
+    }
 
+    if (e.key == "ArrowUp") {
+      navigate(true)
+    }
+
+    if (e.key == "ArrowDown") {
+      navigate(false)
     }
   }
 
   const spoil = () => {
     setIsSpoiled(prev => !prev)
+  }
+
+  const flip = () => {
+    setIsFlip(prev => !prev)
+
+  }
+
+  const navigate = (param: boolean) => {
+    if (param == true) {
+      if (curIndex == card.length - 1) setCurIndex(0)
+      else setCurIndex(prev => prev + 1)
+    } else {
+      if (curIndex == 0) setCurIndex(card.length - 1)
+      else setCurIndex(prev => prev - 1)
+    }
+    setInputValue('')
   }
   return (
     <>
@@ -80,24 +131,34 @@ export default function Home() {
       </Head>
       <main className="bg-black w-full h-screen text-gray-200 flex flex-col items-center">
         <div className="flex flex-col items-center pt-20 w-[50rem] bg-gray-800 mt-40 rounded-md p-8">
-
-          <div className='rounded-md bg-white/20 w-7/12 p-4 text-center mb-20'>
-            <span className='text-2xl'>{card[curIndex]?.definition}</span>
+          <div className="flex w-full h-full items-center justify-center mb-20">
+            <div className='rounded-md bg-white/20 w-7/12 p-4 text-center '>
+              <span className='text-2xl'>{card[curIndex]?.definition}</span>
+            </div>
+            {/* flip */}
+            <button onClick={flip} className="p-2  rounded-xl ml-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </button>
           </div>
           <div>
-            <input placeholder='text' value={inputValue} onKeyPress={handleKeypress}
+            <input placeholder='text' value={inputValue} onKeyDown={handleKeypress}
               onChange={(e) => setInputValue(e.target.value)} className="rounded-md focus:outline-none bg-white/10 p-2" />
-            <button onClick={spoil} className="bg-green-700 p-1 rounded-md ml-4">
-              Spoil
-            </button>
           </div>
           {isSpoiled &&
             <span className="mt-4 mb-4 h-2 font-bold text-green-600" >
               {card[curIndex]?.value}
             </span>
           }
+          <div>
+            {/* shuffle */}
+            <button onClick={shuffleEvent} className="bg-amber-800 p-2 mt-2 mr-2 rounded-md ">
+              Shuffle
+            </button>
 
-          <button className="p-2 rounded-md bg-blue-400 mt-4" onClick={check}>check</button>
+            <button className="p-2 rounded-md bg-blue-400 mt-4" onClick={check}>check</button>
+          </div>
         </div>
       </main>
     </>

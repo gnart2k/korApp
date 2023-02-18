@@ -1,21 +1,3 @@
-// // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-// import type { NextApiRequest, NextApiResponse } from 'next'
-// import fs from 'fs-extra'
-// import handler from './hello'
-// type Data = {
-//   name: string
-// }
-// export default function handler(req: NextApiRequest, res: NextApiResponse) => {
-//   try {
-//     const data = await fs.readFile('path/to/file', 'utf8');
-//     res.status(200).json({ data });
-//   } catch (err) {
-//     res.status(500).json({ message: 'Error reading file', error: err });
-//   }
-// }
-
-
-
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import * as fs from 'fs';
